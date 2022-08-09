@@ -1,86 +1,38 @@
-var fs = require("fs");
-var chalk = require("chalk");
+const path = require("path");
+
+const COMMON_EXTENSIONS = "/**/*.{js,jsx,ts,tsx,vue,html}";
 
 module.exports = {
   input: [
-    "app/**/*.{js,jsx}",
-    "app/**/*.{ts,tsx}",
-    // Use ! to filter out files or directories
-    "!public/locales/**",
-    "!app/**/*.spec.{js,jsx}",
-    "!app/i18n/**",
-    "!**/node_modules/**",
+    `./pages${COMMON_EXTENSIONS}`,
+    `./components${COMMON_EXTENSIONS}`,
+    `./stories${COMMON_EXTENSIONS}`,
   ],
-  output: "./",
   options: {
-    debug: true,
-    func: {
-      list: ["i18next.t", "i18n.t", "\\t", "this.\\$t", "t"],
-      extensions: [".js", ".jsx", ".tsx"],
-    },
-    trans: {
-      component: "Trans",
-      i18nKey: "i18nKey",
-      defaultsKey: "defaults",
-      extensions: [".js", ".jsx", ".tsx"],
-      fallbackKey: function (ns, value) {
-        return value;
-      },
-      acorn: {
-        ecmaVersion: 2020,
-        sourceType: "module", // defaults to 'module'
-        // Check out https://github.com/acornjs/acorn/tree/master/acorn#interface for additional options
-      },
-    },
-    lngs: ["en", "ko"],
-    ns: ["locale", "resource"],
     defaultLng: "en",
-    defaultNs: "resource",
-    defaultValue: "__STRING_NOT_TRANSLATED__",
+    lngs: ["ko", "en", "ja", "zh"],
+    func: {
+      list: ["i18next.t", "i18n.t", "$i18n.t", "t"],
+      extensions: [".js", ".jsx", ".ts", ".tsx", ".vue", ".html"],
+    },
     resource: {
-      //   loadPath: "i18n/{{lng}}/{{ns}}.json",
-      //   savePath: "i18n/{{lng}}/{{ns}}.json",
-      loadPath: "public/locales/{{lng}}/{{ns}}.json",
-      savePath: "public/locales/{{lng}}/{{ns}}.json",
-      jsonIndent: 2,
-      lineEnding: "\n",
+      loadPath: path.join(__dirname, "public/locales/{{lng}}/{{ns}}.json"),
+      savePath: path.join(__dirname, "public/locales/{{lng}}/{{ns}}.json"),
     },
-    nsSeparator: false, // namespace separator
-    keySeparator: false, // key separator
-    interpolation: {
-      prefix: "{",
-      suffix: "}",
-    },
-  },
-  transform: function customTransform(file, enc, done) {
-    "use strict";
-    const parser = this.parser;
-    const content = fs.readFileSync(file.path, enc);
-    let count = 0;
+    defaultValue(lng, ns, key) {
+      const keyAsDefaultValue = ["ko-KR"];
+      if (keyAsDefaultValue.includes(lng)) {
+        const separator = "~~";
+        const value = key.includes(separator) ? key.split(separator)[1] : key;
 
-    parser.parseFuncFromString(
-      content,
-      { list: ["i18next._", "i18next.__"] },
-      (key, options) => {
-        parser.set(
-          key,
-          Object.assign({}, options, {
-            nsSeparator: false,
-            keySeparator: false,
-          })
-        );
-        ++count;
+        return value;
       }
-    );
 
-    if (count > 0) {
-      console.log(
-        `i18next-scanner: count=${chalk.cyan(count)}, file=${chalk.yellow(
-          JSON.stringify(file.relative)
-        )}`
-      );
-    }
-
-    done();
+      return "";
+    },
+    keySeparator: false,
+    nsSeparator: false,
+    prefix: "%{",
+    suffix: "}",
   },
 };
