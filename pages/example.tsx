@@ -7,13 +7,13 @@ export async function getStaticProps({ locale }: any) {
   console.log(locale);
   return {
     props: {
-      ...(await serverSideTranslations(locale, ["ecommerce"])),
+      ...(await serverSideTranslations(locale, ["example"])),
       // Will be passed to the page component as props
     },
   };
 }
-const Home: NextPage = () => {
-  const { t } = useTranslation("ecommerce");
+const Example: NextPage = () => {
+  const { t } = useTranslation("example");
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-2">
       <Head>
@@ -22,13 +22,13 @@ const Home: NextPage = () => {
       </Head>
 
       <div>
-        <h1>{t("h1")}</h1>
-        <h1>{t("h2")}</h1>
-        <h1>{t("h3")}</h1>
-        <h1>{t("h4")}</h1>
+        <h1>{t("e1")}</h1>
+        <h1>{t("e2")}</h1>
+        <h1>{t("e3")}</h1>
+        <h1>{t("e4")}</h1>
       </div>
     </div>
   );
 };
 
-export default Home;
+export default Example;
