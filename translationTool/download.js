@@ -10,10 +10,15 @@ const {
   columnKeyToHeader,
   NOT_AVAILABLE_CELL,
 } = require("./index");
-
+const nsList = ["common", "ecommerce", "example"];
+const sheetIdByNs = {
+  common: "3333",
+  ecommerce: "1111",
+  example: "2222",
+};
 //스프레드시트 -> json
-async function fetchTranslationsFromSheetToJson(doc) {
-  const sheet = doc.sheetsById[sheetId];
+async function fetchTranslationsFromSheetToJson(doc, ns) {
+  const sheet = doc.sheetsById[sheetIdByNs[ns]];
   if (!sheet) {
     return {};
   }
@@ -78,22 +83,24 @@ async function updateJsonFromSheet() {
   await checkAndMakeLocaleDir(localesPath, lngs);
 
   const doc = await loadSpreadsheet();
-  const lngsMap = await fetchTranslationsFromSheetToJson(doc);
+  nsList.forEach(async (ns) => {
+    const lngsMap = await fetchTranslationsFromSheetToJson(doc, ns);
 
-  fs.readdir(localesPath, (error, lngs) => {
-    if (error) {
-      throw error;
-    }
+    fs.readdir(localesPath, (error, lngs) => {
+      if (error) {
+        throw error;
+      }
 
-    lngs.forEach((lng) => {
-      const localeJsonFilePath = `${localesPath}/${lng}/${ns}.json`;
+      lngs.forEach((lng) => {
+        const localeJsonFilePath = `${localesPath}/${lng}/${ns}.json`;
 
-      const jsonString = JSON.stringify(lngsMap[lng], null, 2);
+        const jsonString = JSON.stringify(lngsMap[lng], null, 2);
 
-      fs.writeFile(localeJsonFilePath, jsonString, "utf8", (err) => {
-        if (err) {
-          throw err;
-        }
+        fs.writeFile(localeJsonFilePath, jsonString, "utf8", (err) => {
+          if (err) {
+            throw err;
+          }
+        });
       });
     });
   });

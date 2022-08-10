@@ -13,27 +13,32 @@ const {
 } = require("./index");
 
 const headerValues = ["key", "ko", "en", "ja", "zh"];
-
+const nsList = ["common", "ecommerce", "example"];
+const sheetIdByNs = {
+  common: "3333",
+  ecommerce: "1111",
+  example: "2222",
+};
 async function addNewSheet(doc, title, sheetId) {
   const sheet = await doc.addSheet({
-    sheetId,
-    title,
-    headerValues,
+    sheetId: sheetId,
+    title: title,
+    headerValues: headerValues,
   });
 
   return sheet;
 }
 
-async function updateTranslationsFromKeyMapToSheet(doc, keyMap) {
+async function updateTranslationsFromKeyMapToSheet(doc, keyMap, title) {
   //시트 타이틀
-  const title = "localization";
-  let sheet = doc.sheetsById[sheetId];
+  // const title = "localization";
+  let sheet = doc.sheetsById[sheetIdByNs[title]];
   if (!sheet) {
-    sheet = await addNewSheet(doc, title, sheetId);
+    sheet = await addNewSheet(doc, title, sheetIdByNs[title]);
   }
 
   const rows = await sheet.getRows();
-
+  console.log(rows);
   // find exsit keys
   const exsitKeys = {};
   const addedRows = [];
@@ -47,6 +52,7 @@ async function updateTranslationsFromKeyMapToSheet(doc, keyMap) {
 
   //스프레트시트에 row 넣는 부분
   for (const [key, translations] of Object.entries(keyMap)) {
+    // console.log(key, translations);
     if (!exsitKeys[key]) {
       const row = {
         [columnKeyToHeader.key]: key,
@@ -57,9 +63,11 @@ async function updateTranslationsFromKeyMapToSheet(doc, keyMap) {
           return result;
         }, {}),
       };
-
+      // console.log(row);
+      // console.log(1);
       addedRows.push(row);
     }
+    // console.log(2);
   }
 
   // upload new keys
@@ -112,19 +120,23 @@ async function updateSheetFromJson() {
       throw error;
     }
 
-    const keyMap = {};
+    nsList.forEach((ns) => {
+      const keyMap = {};
+      lngs.forEach((lng) => {
+        const localeJsonFilePath = `${localesPath}/${lng}/${ns}.json`;
+        console.log(localeJsonFilePath);
+        //.json file read
+        // eslint-disable-next-line no-sync
+        const json = fs.readFileSync(localeJsonFilePath, "utf8");
 
-    lngs.forEach((lng) => {
-      const localeJsonFilePath = `${localesPath}/${lng}/${ns}.json`;
-
-      //.json file read
-      // eslint-disable-next-line no-sync
-      const json = fs.readFileSync(localeJsonFilePath, "utf8");
-
-      gatherKeyMap(keyMap, lng, JSON.parse(json));
+        gatherKeyMap(keyMap, lng, JSON.parse(json));
+      });
+      keyMapbyNs = keyMap;
+      console.log(toJson(keyMapbyNs));
+      updateTranslationsFromKeyMapToSheet(doc, toJson(keyMapbyNs), ns);
     });
+
     //스프레드 시트에 업데이트
-    updateTranslationsFromKeyMapToSheet(doc, toJson(keyMap));
   });
 }
 
