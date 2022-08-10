@@ -8,17 +8,14 @@ const {
   ns,
   lngs,
   sheetId,
+  sheetIdByNs,
   columnKeyToHeader,
   NOT_AVAILABLE_CELL,
 } = require("./index");
 
 const headerValues = ["key", "ko", "en", "ja", "zh"];
-const nsList = ["common", "ecommerce", "example"];
-const sheetIdByNs = {
-  common: "3333",
-  ecommerce: "1111",
-  example: "2222",
-};
+const nsList = Object.keys(sheetIdByNs);
+
 async function addNewSheet(doc, title, sheetId) {
   const sheet = await doc.addSheet({
     sheetId: sheetId,

@@ -13,6 +13,13 @@ const sheetId = 1234;
 const loadPath = i18nextConfig.options.resource.loadPath;
 const localesPath = loadPath.replace("/{{lng}}/{{ns}}.json", "");
 const rePluralPostfix = new RegExp(/_plural|_[\d]/g);
+//구글 스프레트 시트의 namespace, id 매칭
+const sheetIdByNs = {
+  ecommerce: "1111",
+  example: "2222",
+  common: "3333",
+};
+
 //번역이 필요없는 부분
 const NOT_AVAILABLE_CELL = "N/A";
 //스프레드시트에 들어갈 header 설정
@@ -59,6 +66,7 @@ module.exports = {
   ns,
   lngs,
   sheetId,
+  sheetIdByNs,
   columnKeyToHeader,
   NOT_AVAILABLE_CELL,
 };

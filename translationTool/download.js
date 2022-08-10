@@ -7,15 +7,11 @@ const {
   ns,
   lngs,
   sheetId,
+  sheetIdByNs,
   columnKeyToHeader,
   NOT_AVAILABLE_CELL,
 } = require("./index");
-const nsList = ["common", "ecommerce", "example"];
-const sheetIdByNs = {
-  common: "3333",
-  ecommerce: "1111",
-  example: "2222",
-};
+const nsList = Object.keys(sheetIdByNs);
 //스프레드시트 -> json
 async function fetchTranslationsFromSheetToJson(doc, ns) {
   const sheet = doc.sheetsById[sheetIdByNs[ns]];
